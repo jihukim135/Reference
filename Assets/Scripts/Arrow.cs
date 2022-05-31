@@ -31,7 +31,6 @@ public class Arrow : MonoBehaviour
             return;
         }
         
-        Debug.Log("화살 획득");
         _arrowPool.Pool.Enqueue(gameObject);
         gameObject.SetActive(false);
     }

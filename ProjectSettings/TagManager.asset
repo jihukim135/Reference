@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - ArrowPool
+  - Arrow
   layers:
   - Default
   - TransparentFX
