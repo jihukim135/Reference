@@ -41,11 +41,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Move(Vector2Int initPosition, Vector2Int destination)
+    public void Move(Vector2Int initPosition, Vector2Int destination)
     {
         isMoving = true;
         fixedTransform.position = initPosition;
         destPosition = destination;
+    }
+
+    public void Shoot(Vector2Int initPosition, Vector2Int destination)
+    {
+		//todo
+    }
+
+    public void Jump(Vector2Int initPosition, Vector2Int destination)
+    {
+		//todo
     }
 
 }
