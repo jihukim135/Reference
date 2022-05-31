@@ -10,9 +10,6 @@ public class ArrowPool : MonoBehaviour
     [SerializeField] private int poolSize = 0;
     [SerializeField] private GameObject arrowPrefab;
 
-    [SerializeField] private float timeSpan;
-    private float _timer = 0f;
-
     #region singleton
 
     private static ArrowPool _instance;
@@ -54,20 +51,22 @@ public class ArrowPool : MonoBehaviour
             arrow.SetActive(false);
         }
     }
+	
+	public GameObject Pop(Vector3 pos, Vector3 direction)
+	{
+		GameObject arrow = _pool.Dequeue();
 
-    void FixedUpdate()
-    {
-        _timer += Time.fixedDeltaTime;
+        arrow.transform.position = pos;
+    	arrow.SetActive(true);
 
-        if (_timer > timeSpan)
-        {
-            GameObject arrow = _pool.Dequeue();
+		// Todo arrow velocity
 
-            int posX = Random.Range(-6, 7);
-            arrow.transform.position = new Vector3(posX, 7f, 0f);
-            arrow.SetActive(true);
+		return arrow;
+	}
 
-            _timer = 0f;
-        }
-    }
+	public void Discard(GameObject instance)
+	{
+		instance.SetActive(false);
+		_pool.Enqueue(instance);
+	}
 }
