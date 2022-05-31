@@ -254,7 +254,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b45a8a954a907047af1c0479c654667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 2
+  speed: 5
+  gravity: 2
+  jumpPower: 40
+  ground: -365
 --- !u!212 &683677565
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -727,7 +730,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   poolSize: 15
   arrowPrefab: {fileID: 2767732455977445280, guid: fbc64dfcaf931a44f9b35dd59091e32c, type: 3}
-  timeSpan: 2
 --- !u!4 &1839579353
 Transform:
   m_ObjectHideFlags: 0
