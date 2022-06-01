@@ -7,30 +7,47 @@ using System.Text;
 
 public class NetworkManager : MonoBehaviour
 {
-	Socket clientSocket;
-	EndPoint serverEP;
+	UdpClient udpClient;
+	[SerializeField] private string ip = "127.0.0.1";
+	[SerializeField] private int port = 7777;
+
+	IPEndPoint endPoint;
 
     void Start()
     {
-        clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-		serverEP = new IPEndPoint(IPAddress.Loopback, 10200);
+		Open();
+
+		IPAddress ipAddr;
+		IPAddress.TryParse(ip, out ipAddr);
+		endPoint = new IPEndPoint(ipAddr, port);
     }
 
     void Update()
     {
-        
+        Debug.Log(Receive());
     }
 
-	string Recv()
+	void Open()
 	{
-		byte[] recvBytes = new byte[1024];
-  		int nRecv = clientSocket.ReceiveFrom(recvBytes, ref serverEP);
-  		return Encoding.UTF8.GetString(recvBytes, 0, nRecv);
+        UdpClient udpClient = new UdpClient();
+	}
+
+	string Receive()
+	{
+		Debug.Log(endPoint);
+        byte[] bytes = udpClient.Receive(ref endPoint);
+        
+  		return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 	}
 
 	void Send(string message)
 	{
 		byte[] buf = Encoding.UTF8.GetBytes(message);
-  		clientSocket.SendTo(buf, serverEP);
+        udpClient.Send(buf, buf.Length, ip, port);
+	}
+
+	void Close()
+	{
+        udpClient.Close();
 	}
 }
