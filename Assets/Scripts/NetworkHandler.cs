@@ -1,6 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 
 public struct GamePacket
 {
@@ -24,11 +28,14 @@ public class NetworkHandler : MonoBehaviour
 	[SerializeField] private int localUuid;
 
 	public static NetworkHandler instance { get; private set; }
+	private NetworkManager networkManager;
+	private bool ticked;
 
 	private void Awake()
 	{
 		packets = new Queue<GamePacket>();
 		players = new Dictionary<int, PlayerController>();
+		networkManager = GetComponent<NetworkManager>();
 	}
 
 	private void Start()
@@ -36,6 +43,17 @@ public class NetworkHandler : MonoBehaviour
 		instance = this;
 
 		SpawnLocalPlayer();
+
+		new Thread(ReceiveLoop).Start();
+	}
+
+	private void Update()
+	{
+		if (ticked)
+		{
+			RunQueue();
+			ticked = false;
+		}
 	}
 
 	public void SpawnLocalPlayer()
@@ -48,27 +66,24 @@ public class NetworkHandler : MonoBehaviour
 		SendDatagram(2, initPosition, initPosition);
 	}
 
-    public void ReceiveDatagram(byte[] bytes)
+	public void ReceiveLoop()
 	{
-		for (int i = 0; i <= bytes.Length - 32; i += 32)
+		while (true)
 		{
-			GamePacket p = new GamePacket();
-			p.timestamp = System.BitConverter.ToInt64(bytes, i + 0);
-			p.packetType = System.BitConverter.ToInt32(bytes, i + 8);
-			p.playerX = System.BitConverter.ToInt32(bytes, i + 12);
-			p.playerY = System.BitConverter.ToInt32(bytes, i + 16);
-			p.destX = System.BitConverter.ToInt32(bytes, i + 20);
-			p.destY = System.BitConverter.ToInt32(bytes, i + 24);
-			p.uuid = System.BitConverter.ToInt32(bytes, i + 28);
+			byte[] bytes = networkManager.Receive();
 
+			GamePacket p = new GamePacket();
+			p.timestamp = System.BitConverter.ToInt64(bytes, 0);
+			p.packetType = System.BitConverter.ToInt32(bytes, 8);
+			p.playerX = System.BitConverter.ToInt32(bytes, 12);
+			p.playerY = System.BitConverter.ToInt32(bytes, 16);
+			p.destX = System.BitConverter.ToInt32(bytes, 20);
+			p.destY = System.BitConverter.ToInt32(bytes, 24);
+			p.uuid = System.BitConverter.ToInt32(bytes, 28);
+
+			packets.Enqueue(p);
 			if (p.packetType == 1)
-			{
-				RunQueue();
-			}
-			else
-			{
-				packets.Enqueue(p);
-			}
+				ticked = true;
 		}
 	}
 
@@ -84,19 +99,7 @@ public class NetworkHandler : MonoBehaviour
         System.BitConverter.GetBytes(dest.y).CopyTo(dgram, 24);
         System.BitConverter.GetBytes(localUuid).CopyTo(dgram, 28);
 
-		Debug.Log(dgram);
-
-		// 테스트용: 바로 송신 처리
-		ReceiveDatagram(dgram);
-
-		System.BitConverter.GetBytes(UnixTimeNow()).CopyTo(dgram, 0);
-        System.BitConverter.GetBytes(1).CopyTo(dgram, 8);
-        System.BitConverter.GetBytes(0).CopyTo(dgram, 12);
-        System.BitConverter.GetBytes(0).CopyTo(dgram, 16);
-        System.BitConverter.GetBytes(0).CopyTo(dgram, 20);
-        System.BitConverter.GetBytes(0).CopyTo(dgram, 24);
-        System.BitConverter.GetBytes(0).CopyTo(dgram, 28);
-		ReceiveDatagram(dgram);
+		networkManager.Send(dgram);
 	}
 
 	private void RunQueue()

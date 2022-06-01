@@ -7,47 +7,56 @@ using System.Text;
 
 public class NetworkManager : MonoBehaviour
 {
-	UdpClient udpClient;
-	[SerializeField] private string ip = "127.0.0.1";
-	[SerializeField] private int port = 7777;
+    private TcpClient server;
+	private NetworkStream ns;
 
-	IPEndPoint endPoint;
+	[SerializeField] private string address;
+	[SerializeField] private int port;
 
     void Start()
     {
 		Open();
-
-		IPAddress ipAddr;
-		IPAddress.TryParse(ip, out ipAddr);
-		endPoint = new IPEndPoint(ipAddr, port);
     }
 
     void Update()
     {
-        Debug.Log(Receive());
+		
     }
 
 	void Open()
 	{
-        UdpClient udpClient = new UdpClient();
+		try
+        {
+            server = new TcpClient(address, port);
+        	server.LingerState = new LingerOption(true, 0);
+        }
+        catch (SocketException)
+        {
+            Debug.Log("Unable to connect to server");
+            return;
+        }
+
+		ns = server.GetStream();
+    	Debug.Log("connected to server");
 	}
 
-	string Receive()
+	public byte[] Receive()
 	{
-		Debug.Log(endPoint);
-        byte[] bytes = udpClient.Receive(ref endPoint);
-        
-  		return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+        byte[] data = new byte[32];
+        ns.Read(data, 0, data.Length);
+
+		return data;
 	}
 
-	void Send(string message)
+	public void Send(byte[] message)
 	{
-		byte[] buf = Encoding.UTF8.GetBytes(message);
-        udpClient.Send(buf, buf.Length, ip, port);
+        ns.Write(message, 0, message.Length);
+        ns.Flush();
 	}
 
 	void Close()
 	{
-        udpClient.Close();
+        ns.Close();
+        server.Close();
 	}
 }
