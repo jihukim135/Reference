@@ -5,33 +5,37 @@ using UnityEngine;
 
 public class Arrow : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    private ArrowPool _arrowPool;
+    [SerializeField] private Vector2Int gravity;
+    [SerializeField] private int ground;
+    public Vector2Int velocity;
 
-    void Start()
+    private FixedPosTransform fixedTransform;
+
+    private void Awake()
     {
-        _arrowPool = ArrowPool.Instance;
+        fixedTransform = GetComponent<FixedPosTransform>();
     }
 
     void FixedUpdate()
     {
-        transform.Translate(0f, -speed, 0f);
+		velocity += gravity;
+		fixedTransform.position += velocity;
 
-        if (transform.position.y < -5.0f)
-        {
-            _arrowPool.Pool.Enqueue(gameObject);
-            gameObject.SetActive(false);
-        }
+        if (fixedTransform.position.y < ground)
+            ArrowPool.Instance.Discard(gameObject);
     }
+
+	public void Initialize(Vector2Int pos, Vector2Int vel)
+	{
+		fixedTransform.position = pos;
+		velocity = vel;
+	}
 
     private void OnTriggerEnter2D(Collider2D col)
     {
-        if (!col.gameObject.CompareTag("Player"))
-        {
-            return;
-        }
-        
-        _arrowPool.Pool.Enqueue(gameObject);
-        gameObject.SetActive(false);
+        //if (col.gameObject.CompareTag("Player"))
+        //{
+            //ArrowPool.Instance.Discard(gameObject);
+        //}
     }
 }

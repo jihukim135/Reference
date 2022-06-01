@@ -76,7 +76,7 @@ public class PlayerController : MonoBehaviour
     {
         fixedTransform.position = initPosition;
 
-		ArrowPool.Instance.Pop((Vector3)(Vector2)initPosition, (Vector3)(Vector2)destination);
+		ArrowPool.Instance.Pop(initPosition, destination);
         //destPosition = destination;
     }
 

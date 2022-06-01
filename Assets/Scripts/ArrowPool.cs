@@ -9,6 +9,7 @@ public class ArrowPool : MonoBehaviour
     public Queue<GameObject> Pool => _pool;
     [SerializeField] private int poolSize = 0;
     [SerializeField] private GameObject arrowPrefab;
+    [SerializeField] private int speed = 0;
 
     #region singleton
 
@@ -52,14 +53,16 @@ public class ArrowPool : MonoBehaviour
         }
     }
 	
-	public GameObject Pop(Vector3 pos, Vector3 direction)
+	public GameObject Pop(Vector2Int pos, Vector2Int dir)
 	{
+		int mag = Mathf.FloorToInt(Mathf.Sqrt(dir.x * dir.x + dir.y * dir.y));
+		dir *= speed;
+		dir /= mag;
+
 		GameObject arrow = _pool.Dequeue();
 
-        arrow.transform.position = pos;
+		arrow.GetComponent<Arrow>().Initialize(pos, dir);
     	arrow.SetActive(true);
-
-		// Todo arrow velocity
 
 		return arrow;
 	}

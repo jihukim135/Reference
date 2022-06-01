@@ -28,7 +28,7 @@ public class PlayerHp : MonoBehaviour
         // 아직 발사 화살이 없어서 떨어지는 화살에 태그 달아놓음
         if (!_isDead && col.CompareTag("Arrow"))
         {
-            DecreaseHp();
+            //DecreaseHp();
         }
     }
 
