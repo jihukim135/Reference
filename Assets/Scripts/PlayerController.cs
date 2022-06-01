@@ -11,33 +11,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int speed = 10;
     [SerializeField] private int gravity = 10;
     [SerializeField] private int jumpPower = 10;
-	[SerializeField] private int ground = 0;
+	[SerializeField] protected int ground = 0;
 
-    private FixedPosTransform fixedTransform;
+    protected FixedPosTransform fixedTransform;
 
     private void Awake()
     {
         fixedTransform = GetComponent<FixedPosTransform>();
     }
 
-    // Start is called before the first frame update
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-			Move(fixedTransform.position, FixedPosTransform.MousePosition());
-        }
-        else if (Input.GetMouseButtonDown(1))
-        {
-            Shoot(fixedTransform.position, FixedPosTransform.MousePosition() - fixedTransform.position);
-        }
-        else if (Input.GetKeyDown(KeyCode.Space) && fixedTransform.position.y <= ground)
-        {
-            Jump(fixedTransform.position, Vector2Int.down);
-        }
-    }
-
-    // Update is called once per frame
     void FixedUpdate()
     {
         if (isMoving)
