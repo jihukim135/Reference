@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5523546079335545609}
-  - component: {fileID: 1109720018540357088}
   - component: {fileID: 5523546079335545608}
   m_Layer: 0
   m_Name: NetworkManager
@@ -33,20 +32,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1109720018540357088
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5523546079335545610}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 379d66e1b3c5dfd4eb273f6450fd69ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  address: 127.0.0.1
-  port: 7777
 --- !u!114 &5523546079335545608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2e49ef95ef22c948a287e1268d3e5b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  address: 127.0.0.1
+  port: 7777
   localPlayerPrefab: {fileID: 227679600530925711, guid: 98756e0c7d9b45441811c04abfeb7732, type: 3}
   playerPrefab: {fileID: 4222697789352246854, guid: 52aeed0680c3ed142be51a371627e4ba, type: 3}
   initPosition: {x: 0, y: -365}

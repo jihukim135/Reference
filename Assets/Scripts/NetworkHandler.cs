@@ -19,6 +19,12 @@ public struct GamePacket
 
 public class NetworkHandler : MonoBehaviour
 {
+    private TcpClient server;
+	private NetworkStream ns;
+
+	[SerializeField] private string address;
+	[SerializeField] private int port;
+
 	private Queue<GamePacket> packets;
 	private Dictionary<int, PlayerController> players;
 	
@@ -28,23 +34,43 @@ public class NetworkHandler : MonoBehaviour
 	[SerializeField] private int localUuid;
 
 	public static NetworkHandler instance { get; private set; }
-	private NetworkManager networkManager;
 	private bool ticked;
 
 	private void Awake()
 	{
 		packets = new Queue<GamePacket>();
 		players = new Dictionary<int, PlayerController>();
-		networkManager = GetComponent<NetworkManager>();
 	}
 
 	private void Start()
 	{
 		instance = this;
 
-		SpawnLocalPlayer();
+		try
+        {
+            server = new TcpClient(address, port);
+        	server.LingerState = new LingerOption(true, 0);
 
-		new Thread(ReceiveLoop).Start();
+			ns = server.GetStream();
+			Debug.Log("connected to server");
+			SpawnLocalPlayer();
+
+			new Thread(ReceiveLoop).Start();
+        }
+        catch (SocketException)
+        {
+            Debug.Log("Unable to connect to server");
+            return;
+        }
+	}
+
+	private void OnApplicationQuit()
+	{
+		if (ns != null)
+		{
+			ns.Close();
+			server.Close();
+		}
 	}
 
 	private void Update()
@@ -70,16 +96,17 @@ public class NetworkHandler : MonoBehaviour
 	{
 		while (true)
 		{
-			byte[] bytes = networkManager.Receive();
+			byte[] data = new byte[32];
+			ns.Read(data, 0, data.Length);
 
 			GamePacket p = new GamePacket();
-			p.timestamp = System.BitConverter.ToInt64(bytes, 0);
-			p.packetType = System.BitConverter.ToInt32(bytes, 8);
-			p.playerX = System.BitConverter.ToInt32(bytes, 12);
-			p.playerY = System.BitConverter.ToInt32(bytes, 16);
-			p.destX = System.BitConverter.ToInt32(bytes, 20);
-			p.destY = System.BitConverter.ToInt32(bytes, 24);
-			p.uuid = System.BitConverter.ToInt32(bytes, 28);
+			p.timestamp = System.BitConverter.ToInt64(data, 0);
+			p.packetType = System.BitConverter.ToInt32(data, 8);
+			p.playerX = System.BitConverter.ToInt32(data, 12);
+			p.playerY = System.BitConverter.ToInt32(data, 16);
+			p.destX = System.BitConverter.ToInt32(data, 20);
+			p.destY = System.BitConverter.ToInt32(data, 24);
+			p.uuid = System.BitConverter.ToInt32(data, 28);
 
 			packets.Enqueue(p);
 			if (p.packetType == 1)
@@ -99,7 +126,8 @@ public class NetworkHandler : MonoBehaviour
         System.BitConverter.GetBytes(dest.y).CopyTo(dgram, 24);
         System.BitConverter.GetBytes(localUuid).CopyTo(dgram, 28);
 
-		networkManager.Send(dgram);
+        ns.Write(dgram, 0, 32);
+        ns.Flush();
 	}
 
 	private void RunQueue()

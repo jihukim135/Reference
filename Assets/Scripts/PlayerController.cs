@@ -56,7 +56,7 @@ public class PlayerController : MonoBehaviour
 
     public void Shoot(Vector2Int initPosition, Vector2Int destination)
     {
-        fixedTransform.position = initPosition;
+        //fixedTransform.position = initPosition;
 
 		ArrowPool.Instance.Pop(initPosition, destination);
         //destPosition = destination;
