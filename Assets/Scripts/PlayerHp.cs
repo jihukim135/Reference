@@ -23,24 +23,15 @@ public class PlayerHp : MonoBehaviour
         _renderer = GetComponent<SpriteRenderer>();
     }
 
-    private void OnTriggerEnter2D(Collider2D col)
+    public void DecreaseHp(int damage)
     {
-        // 아직 발사 화살이 없어서 떨어지는 화살에 태그 달아놓음
-        if (!_isDead && col.CompareTag("Arrow"))
-        {
-            //DecreaseHp();
-        }
-    }
-
-    private void DecreaseHp()
-    {
-        if (_currentHp <= 0)
+        if (!_isDead && _currentHp <= 0)
         {
             Die();
             return;
         }
         
-        hpFillImage.fillAmount -= _decreaseAmount;
+        hpFillImage.fillAmount -= damage * _decreaseAmount;
         _currentHp--;
     }
 

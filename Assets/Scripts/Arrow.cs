@@ -10,6 +10,7 @@ public class Arrow : MonoBehaviour
     public Vector2Int velocity;
 
     private FixedPosTransform fixedTransform;
+    public GameObject Shooter { get; set; }
 
     private void Awake()
     {
@@ -18,25 +19,31 @@ public class Arrow : MonoBehaviour
 
     void FixedUpdate()
     {
-		velocity += gravity;
-		fixedTransform.position += velocity;
-		transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(velocity.x, -velocity.y) * Mathf.Rad2Deg);
+        velocity += gravity;
+        fixedTransform.position += velocity;
+        transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(velocity.x, -velocity.y) * Mathf.Rad2Deg);
 
         if (fixedTransform.position.y < ground)
+        {
             ArrowPool.Instance.Discard(gameObject);
+        }
     }
 
-	public void Initialize(Vector2Int pos, Vector2Int vel)
-	{
-		fixedTransform.position = pos;
-		velocity = vel;
-	}
+    public void Initialize(Vector2Int pos, Vector2Int vel)
+    {
+        fixedTransform.position = pos;
+        velocity = vel;
+    }
 
     private void OnTriggerEnter2D(Collider2D col)
     {
-        //if (col.gameObject.CompareTag("Player"))
-        //{
-            //ArrowPool.Instance.Discard(gameObject);
-        //}
+        GameObject go = col.gameObject;
+        if (go == Shooter || !go.CompareTag("Player"))
+        {
+            return;
+        }
+
+        ArrowPool.Instance.Discard(gameObject);
+        go.GetComponent<PlayerHp>().DecreaseHp(1);
     }
 }

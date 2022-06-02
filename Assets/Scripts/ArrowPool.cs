@@ -60,7 +60,7 @@ public class ArrowPool : MonoBehaviour
 		dir /= mag;
 
 		GameObject arrow = _pool.Dequeue();
-
+		
 		arrow.GetComponent<Arrow>().Initialize(pos, dir);
     	arrow.SetActive(true);
 

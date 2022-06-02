@@ -58,7 +58,8 @@ public class PlayerController : MonoBehaviour
     {
         //fixedTransform.position = initPosition;
 
-		ArrowPool.Instance.Pop(initPosition, destination);
+        Arrow arrow = ArrowPool.Instance.Pop(initPosition, destination).GetComponent<Arrow>();
+        arrow.Shooter = this.gameObject;
         //destPosition = destination;
     }
 
