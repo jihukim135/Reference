@@ -20,7 +20,7 @@ public class Arrow : MonoBehaviour
     {
 		velocity += gravity;
 		fixedTransform.position += velocity;
-		transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(velocity.x, velocity.y));
+		transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(velocity.x, -velocity.y) * Mathf.Rad2Deg);
 
         if (fixedTransform.position.y < ground)
             ArrowPool.Instance.Discard(gameObject);
