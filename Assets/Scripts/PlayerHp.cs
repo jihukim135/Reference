@@ -14,6 +14,7 @@ public class PlayerHp : MonoBehaviour
     private int _currentHp;
 
     private bool _isDead = false;
+    public bool IsDead => _isDead;
     private SpriteRenderer _renderer;
 
     void Start()
@@ -56,6 +57,6 @@ public class PlayerHp : MonoBehaviour
             yield return null;
         }
         
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 }

@@ -38,6 +38,8 @@ public class NetworkHandler : MonoBehaviour
 
     private void Awake()
     {
+        instance = this;
+        
         packets = new Queue<GamePacket>();
         players = new Dictionary<int, PlayerController>();
 
@@ -46,8 +48,6 @@ public class NetworkHandler : MonoBehaviour
 
     private void Start()
     {
-        instance = this;
-
         try
         {
             server = new TcpClient(address, port);
