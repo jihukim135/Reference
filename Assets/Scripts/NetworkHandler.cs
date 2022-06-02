@@ -40,6 +40,8 @@ public class NetworkHandler : MonoBehaviour
 	{
 		packets = new Queue<GamePacket>();
 		players = new Dictionary<int, PlayerController>();
+
+		localUuid = Random.Range(int.MinValue, int.MaxValue);
 	}
 
 	private void Start()
@@ -108,9 +110,10 @@ public class NetworkHandler : MonoBehaviour
 			p.destY = System.BitConverter.ToInt32(data, 24);
 			p.uuid = System.BitConverter.ToInt32(data, 28);
 
-			packets.Enqueue(p);
 			if (p.packetType == 1)
 				ticked = true;
+			else
+				packets.Enqueue(p);
 		}
 	}
 
