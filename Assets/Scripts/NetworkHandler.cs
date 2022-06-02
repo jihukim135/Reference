@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UnityEngine.UI;
 
 public struct GamePacket
 {
@@ -17,45 +18,40 @@ public struct GamePacket
     public int uuid;
 }
 
-public class NetworkHandler : MonoBehaviour
+public class NetworkHandler : Singleton<NetworkHandler>
 {
-    private TcpClient server;
-    private NetworkStream ns;
+    private TcpClient _server;
+    private NetworkStream _ns;
 
     [SerializeField] private string address;
     [SerializeField] private int port;
 
-    private Queue<GamePacket> packets;
-    private Dictionary<int, PlayerController> players;
+    private Queue<GamePacket> _packets;
+    private Dictionary<int, PlayerController> _players;
 
     [SerializeField] private GameObject localPlayerPrefab;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Vector2Int initPosition;
     [SerializeField] private int localUuid;
 
-    public static NetworkHandler instance { get; private set; }
-    private bool ticked;
+    private bool _ticked;
+
 
     private void Awake()
     {
-        instance = this;
-        
-        packets = new Queue<GamePacket>();
-        players = new Dictionary<int, PlayerController>();
-
-        localUuid = Random.Range(int.MinValue, int.MaxValue);
+        _packets = new Queue<GamePacket>();
+        _players = new Dictionary<int, PlayerController>();
     }
 
     private void Start()
     {
         try
         {
-            server = new TcpClient(address, port);
-            server.LingerState = new LingerOption(true, 0);
+            _server = new TcpClient(address, port);
+            _server.LingerState = new LingerOption(true, 0);
 
-            ns = server.GetStream();
+            _ns = _server.GetStream();
             Debug.Log("connected to server");
-            SpawnLocalPlayer();
 
             new Thread(ReceiveLoop).Start();
         }
@@ -68,28 +64,30 @@ public class NetworkHandler : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        if (ns != null)
+        if (_ns != null)
         {
-            ns.Close();
-            server.Close();
+            _ns.Close();
+            _server.Close();
         }
     }
 
     private void Update()
     {
-        if (ticked)
+        if (_ticked)
         {
             RunQueue();
-            ticked = false;
+            _ticked = false;
         }
     }
 
     public void SpawnLocalPlayer()
     {
+        localUuid = Random.Range(int.MinValue, int.MaxValue);
+
         GameObject instance = Instantiate(localPlayerPrefab);
         instance.GetComponent<FixedPosTransform>().position = initPosition;
         PlayerController newPlayer = instance.GetComponent<PlayerController>();
-        players.Add(localUuid, newPlayer);
+        _players.Add(localUuid, newPlayer);
 
         SendDatagram(2, initPosition, initPosition);
     }
@@ -99,7 +97,7 @@ public class NetworkHandler : MonoBehaviour
         while (true)
         {
             byte[] data = new byte[32];
-            ns.Read(data, 0, data.Length);
+            _ns.Read(data, 0, data.Length);
 
             GamePacket p = new GamePacket();
             p.timestamp = System.BitConverter.ToInt64(data, 0);
@@ -112,11 +110,11 @@ public class NetworkHandler : MonoBehaviour
 
             if (p.packetType == 1)
             {
-                ticked = true;
+                _ticked = true;
             }
             else
             {
-                packets.Enqueue(p);
+                _packets.Enqueue(p);
             }
         }
     }
@@ -133,27 +131,27 @@ public class NetworkHandler : MonoBehaviour
         System.BitConverter.GetBytes(dest.y).CopyTo(dgram, 24);
         System.BitConverter.GetBytes(localUuid).CopyTo(dgram, 28);
 
-        ns.Write(dgram, 0, 32);
-        ns.Flush();
+        _ns.Write(dgram, 0, 32);
+        _ns.Flush();
     }
 
     private void RunQueue()
     {
-        while (packets.Count > 0)
+        while (_packets.Count > 0)
         {
-            GamePacket p = packets.Dequeue();
+            GamePacket p = _packets.Dequeue();
             Vector2Int pos = new Vector2Int(p.playerX, p.playerY);
             Vector2Int dest = new Vector2Int(p.destX, p.destY);
 
-            if (!players.ContainsKey(p.uuid))
+            if (!_players.ContainsKey(p.uuid))
             {
                 GameObject instance = Instantiate(playerPrefab);
                 instance.GetComponent<FixedPosTransform>().position = initPosition;
                 PlayerController newPlayer = instance.GetComponent<PlayerController>();
-                players.Add(p.uuid, newPlayer);
+                _players.Add(p.uuid, newPlayer);
             }
 
-            PlayerController player = players[p.uuid];
+            PlayerController player = _players[p.uuid];
 
             if (p.packetType == 2)
             {
@@ -169,8 +167,7 @@ public class NetworkHandler : MonoBehaviour
             }
             else if (p.packetType == 5)
             {
-                // 죽음
-                players.Remove(p.uuid);
+                _players.Remove(p.uuid);
             }
         }
     }

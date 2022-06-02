@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerHp : MonoBehaviour
@@ -13,9 +15,10 @@ public class PlayerHp : MonoBehaviour
     [SerializeField] private int maxHp;
     private int _currentHp;
 
-    private bool _isDead = false;
-    public bool IsDead => _isDead;
+    public bool IsDead { get; private set; }
+
     private SpriteRenderer _renderer;
+    [SerializeField] private float fadeOutDuration;
 
     void Start()
     {
@@ -26,12 +29,12 @@ public class PlayerHp : MonoBehaviour
 
     public void DecreaseHp(int damage)
     {
-        if (!_isDead && _currentHp <= 0)
+        if (!IsDead && _currentHp <= 0)
         {
             Die();
             return;
         }
-        
+
         hpFillImage.fillAmount -= damage * _decreaseAmount;
         _currentHp--;
     }
@@ -39,24 +42,23 @@ public class PlayerHp : MonoBehaviour
     private void Die()
     {
         Debug.Log("Die");
-        _isDead = true;
+        IsDead = true;
         hpBar.SetActive(false);
 
-        StartCoroutine(FadeOut(3f));
+        StartCoroutine(FadeOut());
+        Destroy(gameObject, fadeOutDuration);
     }
 
-    private IEnumerator FadeOut(float t)
+    private IEnumerator FadeOut()
     {
         Color color = Color.white;
 
         while (color.a > 0f)
         {
-            color.a -= Time.deltaTime / t;
+            color.a -= Time.deltaTime / fadeOutDuration;
             _renderer.color = color;
 
             yield return null;
         }
-        
-        Destroy(gameObject);
     }
 }

@@ -388,6 +388,7 @@ MonoBehaviour:
   hpBar: {fileID: 227679598919953847}
   hpFillImage: {fileID: 227679599090016668}
   maxHp: 5
+  fadeOutDuration: 3
 --- !u!58 &227679600530925706
 CircleCollider2D:
   m_ObjectHideFlags: 0

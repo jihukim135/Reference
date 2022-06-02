@@ -3,43 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-public class ArrowPool : MonoBehaviour
+public class ArrowPool : Singleton<ArrowPool>
 {
     private Queue<GameObject> _pool;
-    public Queue<GameObject> Pool => _pool;
     [SerializeField] private int poolSize = 0;
     [SerializeField] private GameObject arrowPrefab;
     [SerializeField] private int speed = 0;
-
-    #region singleton
-
-    private static ArrowPool _instance;
-
-    public static ArrowPool Instance
-    {
-        get
-        {
-            Init();
-            return _instance;
-        }
-    }
-
-    private static void Init()
-    {
-        if (_instance == null)
-        {
-            GameObject go = GameObject.FindWithTag("ArrowPool");
-            if (go == null)
-            {
-                Debug.Log("ArrowPool not found");
-                return;
-            }
-
-            _instance = go.GetComponent<ArrowPool>();
-        }
-    }
-
-    #endregion
 
     void Start()
     {
