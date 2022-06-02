@@ -44,6 +44,11 @@ public class Arrow : MonoBehaviour
         }
 
         ArrowPool.Instance.Discard(gameObject);
-        go.GetComponent<PlayerHp>().DecreaseHp(1);
+
+        PlayerHp opponentHp = go.GetComponent<PlayerHp>();
+        PlayerHp shooterHp = Shooter.GetComponent<PlayerHp>();
+
+        opponentHp.WhoAttackedMe = shooterHp;
+        opponentHp.DecreaseHp(1);
     }
 }

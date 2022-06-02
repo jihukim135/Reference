@@ -5,12 +5,13 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class PlayerHp : MonoBehaviour
 {
     [SerializeField] private GameObject hpBar;
     [SerializeField] private Image hpFillImage;
-    private float _decreaseAmount;
+    private float _fillUnitAmount;
 
     [SerializeField] private int maxHp;
     private int _currentHp;
@@ -20,9 +21,11 @@ public class PlayerHp : MonoBehaviour
     private SpriteRenderer _renderer;
     [SerializeField] private float fadeOutDuration;
 
+    public PlayerHp WhoAttackedMe { get; set; }
+
     void Start()
     {
-        _decreaseAmount = 1f / maxHp;
+        _fillUnitAmount = 1f / maxHp;
         _currentHp = maxHp;
         _renderer = GetComponent<SpriteRenderer>();
     }
@@ -35,15 +38,27 @@ public class PlayerHp : MonoBehaviour
             return;
         }
 
-        hpFillImage.fillAmount -= damage * _decreaseAmount;
-        _currentHp--;
+        hpFillImage.fillAmount -= damage * _fillUnitAmount;
+        _currentHp -= damage;
+    }
+
+    private void IncreaseHp(int amount)
+    {
+        if (_currentHp >= maxHp)
+        {
+            return;
+        }
+
+        hpFillImage.fillAmount += amount * _fillUnitAmount;
+        _currentHp += amount;
     }
 
     private void Die()
     {
-        Debug.Log("Die");
         IsDead = true;
         hpBar.SetActive(false);
+        GetComponent<Collider2D>().enabled = false;
+        WhoAttackedMe.IncreaseHp(1);
 
         StartCoroutine(FadeOut());
         Destroy(gameObject, fadeOutDuration);
