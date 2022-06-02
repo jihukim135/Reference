@@ -36,7 +36,6 @@ public class NetworkHandler : Singleton<NetworkHandler>
 
     private bool _ticked;
 
-
     private void Awake()
     {
         _packets = new Queue<GamePacket>();

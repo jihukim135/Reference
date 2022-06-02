@@ -19,7 +19,7 @@ public class LobbyController : Singleton<LobbyController>
     private void OnClickEnterGame()
     {
         lobbyCanvas.SetActive(false);
-
+        
         _networkHandler.SpawnLocalPlayer();
     }
 

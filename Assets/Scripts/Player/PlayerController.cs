@@ -6,12 +6,12 @@ public class PlayerController : MonoBehaviour
 {
     private bool isMoving = false;
     private int destPosition = 0;
-	private int yVelocity;
-    
+    private int yVelocity;
+
     [SerializeField] private int speed = 10;
     [SerializeField] private int gravity = 10;
     [SerializeField] private int jumpPower = 10;
-	[SerializeField] protected int ground = 0;
+    [SerializeField] protected int ground = 0;
 
     protected FixedPosTransform fixedTransform;
 
@@ -25,26 +25,30 @@ public class PlayerController : MonoBehaviour
         if (isMoving)
         {
             if (destPosition < fixedTransform.position.x - speed)
+            {
                 fixedTransform.position += Vector2Int.left * speed;
+            }
             else if (destPosition > fixedTransform.position.x + speed)
+            {
                 fixedTransform.position += Vector2Int.right * speed;
+            }
             else
-			{
-				fixedTransform.position = new Vector2Int(destPosition, fixedTransform.position.y);
+            {
+                fixedTransform.position = new Vector2Int(destPosition, fixedTransform.position.y);
                 isMoving = false;
-			}
+            }
         }
 
-		if (fixedTransform.position.y + yVelocity - gravity <= ground)
-		{
-			yVelocity = 0;
-			fixedTransform.position = new Vector2Int(fixedTransform.position.x, ground);
-		}
-		else
-		{
-			yVelocity -= gravity;
-			fixedTransform.position += Vector2Int.up * yVelocity;
-		}
+        if (fixedTransform.position.y + yVelocity - gravity <= ground)
+        {
+            yVelocity = 0;
+            fixedTransform.position = new Vector2Int(fixedTransform.position.x, ground);
+        }
+        else
+        {
+            yVelocity -= gravity;
+            fixedTransform.position += Vector2Int.up * yVelocity;
+        }
     }
 
     public void Move(Vector2Int initPosition, Vector2Int destination)
@@ -65,8 +69,7 @@ public class PlayerController : MonoBehaviour
 
     public void Jump(Vector2Int initPosition, Vector2Int destination)
     {
-		//todo
-		yVelocity = jumpPower;
+        //todo
+        yVelocity = jumpPower;
     }
-
 }
