@@ -1054,7 +1054,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Arrow.exe
+  m_Text: Goyang.io
 --- !u!222 &2037049176
 CanvasRenderer:
   m_ObjectHideFlags: 0
